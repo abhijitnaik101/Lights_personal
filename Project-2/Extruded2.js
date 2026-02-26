@@ -34,10 +34,10 @@ export function createCutExtrudeShape(newWidth, newHeight, newThickness, newCutA
     const shape = createBoxShape();
 
     let geometry = new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
-    let material = new THREE.MeshStandardMaterial({ color: '#514fdf', side: THREE.DoubleSide })
+    let material = new THREE.MeshStandardMaterial({ color: '#514fdf', side: THREE.DoubleSide, wireframe: false })
 
-     createTrapezoidGeometry(geometry);
-    // createCylinderGeometry(geometry);
+     // createTrapezoidGeometry(geometry);
+      createCylinderGeometry(geometry);
 
     result = new THREE.Mesh(geometry, material);
     const outline = getOutline(result.geometry);

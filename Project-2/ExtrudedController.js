@@ -36,6 +36,6 @@ document.getElementById('E3').addEventListener('click', () => {
     dimensionsCutE3.hidden = false;
     deleteExtrudeShape();
     deleteCutExtrudeShape();
-    createCutExtrudeShapeE3(5,5,10,2.5,2.5, 2.5,2.5)
+    createCutExtrudeShapeE3(8,4,20,2,2,2,2, 45, 135)
 });
 

@@ -1,73 +1,55 @@
-import * as THREE from 'three';
-import { getShadowMaterial } from 'three/tsl';
-export function Experiment()
-{
-
-   
-    const h = 5;
-    const w = 5;
-    const t = 15;
-    const c1 = 45;
-    const c2 = 135;
-    const r = 2.5;
+import * as THREE from 'three'
+import { getOutline } from './utils';
+import { Vector2, Vector3 } from 'three/webgpu';
 
 
-    const shape = new THREE.Shape();
-    //shape.absarc(0, 0, r, 0, Math.PI * 2, false);
-    shape.moveTo(0, 0);
-    shape.lineTo(w, 0);
-    shape.lineTo(w, h);
-    shape.lineTo(0, h);
-    shape.lineTo(0, 0);
+const t = 4;
+const shape = new THREE.Shape();
 
-      // Outer square (start bottom-left)
-    // shape.moveTo(0, 0);      // 0
-    // shape.lineTo(w, 0);      // 1
-    // shape.lineTo(w, h);      // 2
-    // shape.lineTo(0, h);      // 3
-    // shape.closePath();
+shape.moveTo(0, 0);
+shape.lineTo(2, 0);
+shape.lineTo(2, 2);
+shape.lineTo(0, 2);
+shape.lineTo(0, 0);
 
-    // const midY = h / 2;
-    // const midX = w / 2;
+const extrudeSettings = {
+  depth: t,         
+  steps: 5,          
+  curveSegments: 4,  
+  bevelEnabled: false
+};
 
-    // shape.lineTo(midX, midY); // top-left triangle
-    // shape.lineTo(w, midY);    // top-right triangle
-    // shape.lineTo(midX, midY); // bottom-left triangle
-    // shape.lineTo(0, midY);    // bottom-right triangle
+const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+const material = new THREE.MeshStandardMaterial({color: 'red'});
+const mesh = new THREE.Mesh(geometry, material);
 
-    const material = new THREE.MeshStandardMaterial({color: '#695be1', wireframe: true});
-      const geometry = new THREE.ExtrudeGeometry(shape, {
-        depth: t,
-        bevelEnabled: false
-    });
+const outline = getOutline(geometry);
+mesh.add(outline);
 
-   
+const pos = geometry.attributes.position;
+const vertex = new Vector3();
 
-    const attr = geometry.attributes.position;
-    const vertex = new THREE.Vector3();
-    // for( let i = 0; i<attr.count; i++){
-    //     vertex.fromBufferAttribute(attr, i);
-    //     if(vertex.z > t/2) attr.setZ(i,t-vertex.y/Math.tan(c1 * Math.PI/180))
-    //     if(vertex.z < t/2) attr.setZ(i,vertex.y/Math.tan(c1 * Math.PI/180))
-    // }
-    // attr.needsUpdate = true;
+for (let i = 0; i < pos.count; i++) {
+    vertex.fromBufferAttribute(pos, i);
+    if (vertex.z > t / 2) {
+        if (vertex.y > 1) {
+            pos.setX(i, 0.5);
+        }
+    }
+}
 
-    // let w1 = h/Math.tan(c1 * Math.PI/180);
-    // let w2 = h/Math.tan((180-c2) * Math.PI/180);
-    // for( let i = 0; i<attr.count; i++){
-    //     vertex.fromBufferAttribute(attr, i);
-    //     if(vertex.y === h) {
-    //         if(vertex.z < t/2) attr.setZ(i,w1);
-    //         if(vertex.z > t/2) attr.setZ(i,t-w2);
-    //     }
-    // }
-    // attr.needsUpdate = true;
+pos.needsUpdate = true;
 
-    const mesh = new THREE.Mesh(geometry, material);
-    // mesh.rotation.y = Math.PI/2;
-    // mesh.position.z += w;
+export function getMesh(){
     return mesh;
 }
 
 
-
+// if (vertex.x > width/2) {
+        //     if (vertex.y !== height1) positionAttribute.setX(i, width - width1);
+        //     //if(vertex.y === height1) positionAttribute.setX(i, width1);
+        // }
+        // // console.log(vertex);
+        // if (vertex.z < thickness / 2) {
+        //     if (vertex.y !== height2) positionAttribute.setZ(i, width2);
+        // }
