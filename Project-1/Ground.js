@@ -23,8 +23,6 @@ const wallBack = new THREE.Mesh(wallGeometry, wallMaterial);
 wallBack.position.z = -12.5;
 wallBack.position.y = 7.5;
 
-
-
 room.add(plane);
 room.add(wallLeft);
 room.add(wallRight);

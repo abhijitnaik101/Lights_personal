@@ -2,20 +2,17 @@ import { createAxesHelper, createExtrudeShape, deleteExtrudeShape, removeAxesHel
 import { createCutExtrudeShape, deleteCutExtrudeShape } from "./Extruded2";
 import { createCutExtrudeShapeE3, deleteCutExtrudeShapeE3 } from "./Extruded3";
 import { createExtrudeE4, deleteShapeE4 , deleteLines, createLight} from "./Extruded4";
-import { createExtrudeE5, deleteShapeE5 } from "./Extruded5";
 
 const extrudeE1 = document.getElementById('ExtrudeE1');
 const extrudeE2 = document.getElementById('ExtrudeE2');
 const extrudeE3 = document.getElementById('ExtrudeE3');
 const extrudeE4 = document.getElementById('ExtrudeE4');
-const extrudeE5 = document.getElementById('ExtrudeE5')
 
 const panels = {
     extrudeE1,
     extrudeE2,
     extrudeE3,
-    extrudeE4,
-    extrudeE5
+    extrudeE4
 };
 
 function hideAllPanels() {
@@ -29,8 +26,6 @@ function resetScene() {
     deleteCutExtrudeShape();
     deleteCutExtrudeShapeE3();
     deleteShapeE4();
-    deleteShapeE5();
-    createLight(false);
 }
 
 const actions = {
@@ -53,15 +48,15 @@ const actions = {
     },
 
     E4: () => {
-        createLight(true);
+        createLight();
         panels.extrudeE4.hidden = false;
         createExtrudeE4(32,32,4,4,8);
     },
 
     E5: () => {
-        createAxesHelper();
-        panels.extrudeE5.hidden = false;
-        createExtrudeE5(8,6,10,2);
+        createLight();
+        panels.extrudeE4.hidden = false;
+        createExtrudeE4(32,32,4,4,8);
     }
 };
 

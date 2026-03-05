@@ -5,7 +5,7 @@ import { renderer } from './Core/Renderer';
 import { controls } from './Controls/OrbitControls';
 import { ambientLight, changeLights } from './Core/Lights';
 import { changeMaterial, changeMesh, getMesh } from './Project-1/Geometries';
-import './ButtonsLogic'
+import './Project-1/ButtonsLogic'
 import './Project-2/Extruded1';
 import './Project-2/Extruded2';
 import './Project-2/ExtrudedController';

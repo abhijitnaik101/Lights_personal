@@ -5,41 +5,49 @@ import { createGeometries } from "./Project-1/Geometries";
 import { createRoom } from "./Project-1/Ground";
 import { createAxesHelper } from "./Project-2/Extruded1";
 
+const tutorial = document.getElementById("tutorial");
+const info = document.getElementById("info");
 
-document.getElementById("tutorial").hidden = true;
-document.getElementById("info").hidden = true;
+const project1Container = document.getElementById("Project-1-Container");
+const project2Container = document.getElementById("Project-2-Container");
+const dashboard = document.getElementById("dashboard");
 
-const extrudeContainer = document.getElementById('ExtrudeContainer');
-const design9Container = document.getElementById('9DesignContainer');
-const dashboard = document.getElementById('dashboard');
+tutorial.hidden = true;
+info.hidden = true;
 
+function resetScene() {
+    scene.clear();
+    scene.add(ambientLight);
+}
 
+function showProject(project) {
+    dashboard.hidden = true;
 
-document.querySelectorAll('.project1').forEach(button => {
-    button.addEventListener('click', () => {
-        extrudeContainer.hidden = true;
-        design9Container.hidden = false;
-        dashboard.hidden = true;
+    project1Container.hidden = project !== 1;
+    project2Container.hidden = project !== 2;
 
-        scene.clear();
-        scene.add(ambientLight);
+    resetScene();
+
+    if (project === 1) {
         createRoom();
         createGeometries();
         setProject(1);
 
-        document.getElementById("tutorial").hidden = false;
-        document.getElementById("info").hidden = false;
-    });
-});
+        tutorial.hidden = false;
+        info.hidden = false;
+    }
 
+    if (project === 2) {
+        createAxesHelper();
+        tutorial.hidden = true;
+        info.hidden = true;
+    }
+}
 
-document.querySelectorAll('.project2').forEach(button => {
-    button.addEventListener('click', () => {
-        dashboard.hidden = true;
-        extrudeContainer.hidden = false;
-        design9Container.hidden = true;
+document.querySelectorAll(".project1").forEach(btn =>
+    btn.addEventListener("click", () => showProject(1))
+);
 
-        scene.clear();
-        scene.add(ambientLight);
-    });
-});
+document.querySelectorAll(".project2").forEach(btn =>
+    btn.addEventListener("click", () => showProject(2))
+);

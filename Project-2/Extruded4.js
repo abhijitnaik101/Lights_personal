@@ -14,11 +14,12 @@ let segments = 50;
 let diameter = 1;
 let width1 = 2;
 let mesh = null;
-
+const originX  = 0, originY = 0;
 
 
 export function createExtrudeE4(newWidth, newHeight, newThickness, newDiameter, newW1) {
 
+    //updateCamera();
     if (!checkConstraintE4(newWidth, newHeight, newThickness, newDiameter, newW1)) return;
     deleteShapeE4();
 
@@ -45,7 +46,7 @@ export function createExtrudeE4(newWidth, newHeight, newThickness, newDiameter, 
         wireframe: false,
     }
 
-    const shape = createShape(width, height);
+    const shape = createShapeE4(width, height);
     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     const material = new THREE.MeshPhongMaterial(materialSettings);
     //cutShape(geometry);
@@ -56,6 +57,9 @@ export function createExtrudeE4(newWidth, newHeight, newThickness, newDiameter, 
     createLines();
 
     mesh.add(outline);
+
+
+    
     scene.add(mesh);
 }
 
@@ -63,7 +67,7 @@ export function deleteShapeE4() {
     if (scene.children.includes(mesh)) scene.remove(mesh);
 }
 
-function createShape(width, height) {
+function createShapeE4(width, height) {
     const shape = new THREE.Shape();
     shape.moveTo(width1 / 2, width1 / 2);
     shape.absarc(
@@ -120,8 +124,6 @@ let w1_line = null;
 let d_line = null;
 function createLines() {
     deleteLines();
-
-
     const textSize = 1;
     const materialSettings = {color : 'black'};
 
@@ -195,7 +197,6 @@ function createLines() {
         scene.add(d_line);
     });
 
-
 }
 
 export function deleteLines(){
@@ -231,18 +232,25 @@ function getOutline(geometry) {
 }
 
 function updateCamera() {
-    // camera.position.x = width1;
-    // camera.position.y = width1;
-    // camera.lookAt(width1, width1, 0);
-    //camera.rotation.set(0, 0, 0);
+    camera.position.x = width1;
+    camera.position.y = width1;
+    camera.lookAt(width1, width1, 0);
+    camera.rotation.set(0, 0, 0);
 }
 
-export function createLight() {
-    const dirLight = new THREE.DirectionalLight('white', 1);
-    dirLight.position.set(5, 5, 5);
-    dirLight.lookAt(0, 0, 0);
-    scene.add(dirLight);
-   
+let dirLight = null;
+export function createLight(on) {
+    if(on){
+        dirLight = new THREE.DirectionalLight('white', 1);
+        scene.add(dirLight);
+        dirLight.position.set(5, 5, 5);
+        dirLight.lookAt(0, 0, 0);
+    }
+    else if (scene.children.includes(dirLight)) {
+        scene.remove(dirLight);
+    }
+    
+    
 }
 
 
