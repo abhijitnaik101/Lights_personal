@@ -4,12 +4,14 @@ import { setProject } from "./main";
 import { createGeometries } from "./Project-1/Geometries";
 import { createRoom } from "./Project-1/Ground";
 import { createAxesHelper } from "./Project-2/Extruded1";
+import { createExtrude } from "./Project-3/Cutting1";
 
 const tutorial = document.getElementById("tutorial");
 const info = document.getElementById("info");
 
 const project1Container = document.getElementById("Project-1-Container");
 const project2Container = document.getElementById("Project-2-Container");
+const project3Container = document.getElementById("Project-3-Container");
 const dashboard = document.getElementById("dashboard");
 
 tutorial.hidden = true;
@@ -42,6 +44,13 @@ function showProject(project) {
         tutorial.hidden = true;
         info.hidden = true;
     }
+
+    if (project === 3){
+        createAxesHelper();
+        tutorial.hidden = true;
+        info.hidden = true;
+        createExtrude();
+    }
 }
 
 document.querySelectorAll(".project1").forEach(btn =>
@@ -50,4 +59,8 @@ document.querySelectorAll(".project1").forEach(btn =>
 
 document.querySelectorAll(".project2").forEach(btn =>
     btn.addEventListener("click", () => showProject(2))
+);
+
+document.querySelectorAll(".project3").forEach(btn =>
+    btn.addEventListener("click", () => showProject(3))
 );

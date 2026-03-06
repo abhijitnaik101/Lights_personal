@@ -28,77 +28,68 @@
             </div>
 
             <div class="grid md:grid-cols-2 gap-10">
-                <div
-                    class="project1 group bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div class="project1 group h-90 bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                     <div class="relative">
                         <img src="./Images/project1.png"
                             class="w-full h-48 object-cover transition duration-500 group-hover:scale-105" />
                         <div class="absolute inset-0"></div>
                     </div>
                     <div class="p-6 space-y-4">
+                        <h3 class="text-2xl font-semibold text-white">Project 1</h3>
                         <p class="text-sm text-slate-400">
-                            Can use to show behaviour of geometry, light, camera, materials.
+                            9 Designs Project : show behaviour of geometry, light, camera, materials.
                         </p>
-                        <h3 class="text-lg font-semibold text-white">
-                            9 Designs Project
-                        </h3>
-                        <div class="text-sm text-slate-500 flex justify-between">
-                            <span>Start: Feb 18, 2024</span>
-                            <span>End: Feb 19, 2024</span>
-                        </div>
-                        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                            <div
-                                class="bg-green-500 h-2 rounded-full w-0 transition-all duration-500 animate-fill-100 group-hover:w-[100%]">
-                            </div>
-                        </div>
                         <div class="flex justify-between items-center pt-2">
                             <button class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition">
-                                <span
-                                    class="w-6 h-6 flex items-center justify-center rounded-full border border-slate-600 text-xs">
+                                <span class="w-6 h-6 flex items-center justify-center rounded-full border border-slate-600 text-xs">
                                     i
                                 </span>
                                 Info
                             </button>
-                            <span class="text-sm text-slate-500">
-                                100% Complete
-                            </span>
                         </div>
                     </div>
                 </div>
-                <div
-                    class="project2 group bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+
+                <div class="project2 group h-90 bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                     <div class="relative">
                         <img src="./Images/project2.png"
                             class="w-full h-48 object-cover transition duration-500 group-hover:scale-105" />
                         <div class="absolute inset-0"></div>
                     </div>
-                    <div class="p-6 space-y-4">
+                    <div class="p-6 space-y-4 items-center">
+                        <h3 class="text-2xl font-semibold text-white">Project 2</h3>
                         <p class="text-sm text-slate-400">
-                            This project includes various extrusion.
+                            Extrusion Projects : This project includes various extrusion.
                         </p>
-                        <h3 class="text-lg font-semibold text-white">
-                            Extrusion Projects
-                        </h3>
-                        <div class="text-sm text-slate-500 flex justify-between">
-                            <span>Start: Feb 21, 2024</span>
-                            <span>End: Feb 25, 2024</span>
-                        </div>
-                        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                            <div
-                                class="bg-indigo-500 h-2 rounded-full w-0 transition-all duration-500 animate-fill-75 group-hover:w-[75%]">
-                            </div>
-                        </div>
                         <div class="flex justify-between items-center pt-2">
                             <button class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition">
-                                <span
-                                    class="w-6 h-6 flex items-center justify-center rounded-full border border-slate-600 text-xs">
+                                <span class="w-6 h-6 flex items-center justify-center rounded-full border border-slate-600 text-xs">
                                     i
                                 </span>
                                 Info
                             </button>
-                            <span class="text-sm text-slate-500">
-                                75% Complete
-                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project3 group h-90 bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="relative">
+                        <img src="./Images/project3.png"
+                            class="w-full h-48 object-cover transition duration-500 group-hover:scale-105" />
+                        <div class="absolute inset-0"></div>
+                    </div>
+                    <div class="p-6 space-y-4 items-center">
+                        <h3 class="text-2xl font-semibold text-white">Project 3</h3>
+                        <p class="text-sm text-slate-400">
+                            Extrusion Projects : Extrusion via lines.
+                        </p>
+                        <div class="flex justify-between items-center pt-2">
+                            <button class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition">
+                                <span class="w-6 h-6 flex items-center justify-center rounded-full border border-slate-600 text-xs">
+                                    i
+                                </span>
+                                Info
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -141,6 +132,10 @@
                     <button
                         class="project2 bg-gray-100 px-4 py-2 text-left rounded-full hover:bg-gray-900 hover:text-white">
                         Project 2
+                    </button>
+                    <button
+                        class="project3 bg-gray-100 px-4 py-2 text-left rounded-full hover:bg-gray-900 hover:text-white">
+                        Project 3
                     </button>
                 </div>
             </div>
@@ -526,6 +521,15 @@
                 </button>
             </div>
         </div>
+        <!-- <div class="bg-red-500 h-26 absolute left-2/3 -translate-x-1/2 bottom-10 rounded-3xl px-6 py-3 bg-white flex flex-col justify-center items-center w-max">
+            <h3 class="bg-white text-black border-2 w-full px-3 rounded-full text-center m-2">5</h3>
+            <button id="E5"
+                class="h-10 w-12 bg-black text-white rounded-full border-2 border-black hover:bg-white hover:text-black font-semibold text-xl">
+                1
+            </button>
+        </div> -->
+    </div>
+    <div id="Project-3-Container">
     </div>
 
     <script type="module" src="/main.js"></script>

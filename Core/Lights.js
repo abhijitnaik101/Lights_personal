@@ -27,8 +27,10 @@ const hemisphereLight = new THREE.HemisphereLight('white', 'blue', 35);
 hemisphereLight.position.set(0, 10, 0);
 
 RectAreaLightUniformsLib.init();
-const rectAreaLight = new THREE.RectAreaLight('white', 20, 10, 5);
-rectAreaLight.position.set(0, 20, 0);
+const rectAreaLight = new THREE.RectAreaLight('white', 40, 10, 5);
+rectAreaLight.castShadow = true
+rectAreaLight.position.set(10.5, 10, 0);
+rectAreaLight.rotation.set(0, Math.PI/2, 0);
 rectAreaLight.lookAt(0, 0, 0);
 
 

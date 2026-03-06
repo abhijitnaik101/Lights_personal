@@ -43,15 +43,15 @@ export function createExtrudeE5(newWidth1, newWidth2, newHeight, newDiameter) {
     originX = (width1 > width2) ? (width1 + offset) : (width2 + offset);
     originY = 0;
 
-    // const path = createPath();
-    // const geometry = new THREE.TubeGeometry(path, 100, radius, 8, false);
-    // const material = new THREE.MeshPhongMaterial(materialSettings);
-    // mesh = new THREE.Mesh(geometry, material);
-    // const outline = getOutline(geometry);
-    // mesh.add(outline);
-    // scene.add(mesh);
-    createTube();
-    createLines();
+    const path = createDoubleHandle();
+    const geometry = new THREE.TubeGeometry(path, 100, radius, 8, false);
+    const material = new THREE.MeshPhongMaterial(materialSettings);
+    mesh = new THREE.Mesh(geometry, material);
+    const outline = getOutline(geometry);
+    mesh.add(outline);
+    scene.add(mesh);
+    // createTube();
+    // createLines();
 }
 
 export function deleteShapeE5() {
@@ -71,9 +71,9 @@ function createPath() {
 
     const curves = [
         new THREE.LineCurve3(points[0], points[1]),
-        new THREE.CubicBezierCurve3(points[1], new THREE.Vector3(originX - radius * 0.5, originY, 0), new THREE.Vector3(originX, originY + radius * 0.5, 0), points[2]),
+        new THREE.CubicBezierCurve3(points[1], new THREE.Vector3(originX - radius *stretch, originY, 0), new THREE.Vector3(originX, originY + radius *stretch, 0), points[2]),
         new THREE.LineCurve3(points[2], points[3]),
-        new THREE.CubicBezierCurve3(points[3], new THREE.Vector3(originX, originY + height - radius * 0.5, 0), new THREE.Vector3(originX - radius * 0.5, originY + height, 0), points[4]),
+        new THREE.CubicBezierCurve3(points[3], new THREE.Vector3(originX, originY + height - radius *stretch, 0), new THREE.Vector3(originX - radius *stretch, originY + height, 0), points[4]),
         new THREE.LineCurve3(points[4], points[5]),
     ]
     const path = new THREE.CurvePath();
@@ -120,6 +120,34 @@ function createTube() {
 
 }
 
+function createDoubleHandle(){
+    let width = 20;
+    let width1 = 0;
+    let height1 = 10;
+    let height2 = 15;
+    let height3 = 25;
+    let height = height1 + height2 + height3;
+    let originX = 0, originY = 0;
+    const points = [
+        new THREE.Vector3(originX, originY, 0),
+        new THREE.Vector3(originX + width1, originY + height1, 0),
+        new THREE.Vector3(originX + width1, originY + height2, 0),
+        new THREE.Vector3(originX, originY + height3, 0),
+    ]
+
+    let stretch = 0.5;
+    const curves = [
+        new THREE.CubicBezierCurve3(points[0], new THREE.Vector3(originX + width *stretch, originY, 0), new THREE.Vector3(originX + width *stretch, height1, 0),  points[1]),
+        new THREE.CubicBezierCurve3(points[1], new THREE.Vector3(originX - width *stretch/3, height1, 0), new THREE.Vector3(originX - width *stretch/3, height2, 0), points[2]),
+        new THREE.CubicBezierCurve3(points[2], new THREE.Vector3(originX + width *stretch, height2, 0), new THREE.Vector3(originX + width *stretch, height3, 0), points[3]),
+    ]
+
+    const path = new THREE.CurvePath();
+    path.curves = curves;
+
+    return path;
+}
+
 let w_line = null;
 let h_line = null;
 let w1_line = null;
@@ -139,23 +167,23 @@ function createLines() {
     const textSize = 1;
     const materialSettings = { color: 'black' };
 
-    const w_points = [points[0], points[1].setX(originX)];
-    const w_geometry = new THREE.BufferGeometry().setFromPoints(w_points);
+    const w2_points = [points[0], points[1].setX(originX)];
+    const w2_geometry = new THREE.BufferGeometry().setFromPoints(w_points);
 
-    const h_points = [new THREE.Vector3(-1, -(height - width1 * 2), thickness), new THREE.Vector3(-1, width1 * 2, thickness)];
-    const h_geometry = new THREE.BufferGeometry().setFromPoints(h_points);
+    // const h_points = [new THREE.Vector3(-1, -(height - width1 * 2), thickness), new THREE.Vector3(-1, width1 * 2, thickness)];
+    // const h_geometry = new THREE.BufferGeometry().setFromPoints(h_points);
 
-    const w1_points = [new THREE.Vector3(width - width1, -(height - width1 * 2 + 0.5), thickness), new THREE.Vector3(width, -(height - width1 * 2 + 0.5), thickness)];
-    const w1_geometry = new THREE.BufferGeometry().setFromPoints(w1_points);
+    // const w1_points = [new THREE.Vector3(width - width1, -(height - width1 * 2 +stretch), thickness), new THREE.Vector3(width, -(height - width1 * 2 +stretch), thickness)];
+    // const w1_geometry = new THREE.BufferGeometry().setFromPoints(w1_points);
 
-    const d_points = [new THREE.Vector3(width1 - diameter / 2 + 0.5, width1, thickness), new THREE.Vector3(width1 + diameter / 2 - 0.5, width1, thickness)];
-    const d_geometry = new THREE.BufferGeometry().setFromPoints(d_points);
+    // const d_points = [new THREE.Vector3(width1 - diameter / 2 +stretch, width1, thickness), new THREE.Vector3(width1 + diameter / 2 -stretch, width1, thickness)];
+    // const d_geometry = new THREE.BufferGeometry().setFromPoints(d_points);
 
     const material = new THREE.LineBasicMaterial(materialSettings);
     w_line = new THREE.Line(w_geometry, material);
-    h_line = new THREE.Line(h_geometry, material);
-    w1_line = new THREE.Line(w1_geometry, material);
-    d_line = new THREE.Line(d_geometry, material);
+    // h_line = new THREE.Line(h_geometry, material);
+    // w1_line = new THREE.Line(w1_geometry, material);
+    // d_line = new THREE.Line(d_geometry, material);
 
     const loader = new FontLoader();
     loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', (font) => {

@@ -23,13 +23,18 @@ const wallBack = new THREE.Mesh(wallGeometry, wallMaterial);
 wallBack.position.z = -12.5;
 wallBack.position.y = 7.5;
 
+plane.rotation.x = Math.PI/2;
+plane.receiveShadow = true;
+wallLeft.receiveShadow = true;
+wallRight.receiveShadow = true;
+wallBack.receiveShadow = true;
+
 room.add(plane);
 room.add(wallLeft);
 room.add(wallRight);
 room.add(wallBack);
 
-plane.rotation.x = Math.PI/2;
-plane.receiveShadow = true;
+
 
 
 export function createRoom(){
