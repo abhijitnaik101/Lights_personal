@@ -2,54 +2,16 @@ import * as THREE from 'three';
 import { camera } from '../Core/Camera';
 import { scene } from '../Core/Scene';
 
-// export function createExtrudedSquare(length = 200, size = 0.2) {
-//     camera.position.z = 200;
-
-//     const height = 50;
-//     const shape = new Frame(30, 50, 20, 30).getShape();
-//     //const shape = new Bead().getShape();
-//     const half = length / 2
-
-
-//     const p1 = new THREE.Vector3(-half, -half, 0)
-//     const p2 = new THREE.Vector3(half, -half, 0)
-//     const p3 = new THREE.Vector3(half, half, 0)
-//     const p4 = new THREE.Vector3(-half, half, 0)
-
-
-
-//     const path = new THREE.CurvePath()
-//     path.add(new THREE.LineCurve3(p1, p2))
-//     path.add(new THREE.LineCurve3(p2, p3))
-//     path.add(new THREE.LineCurve3(p3, p4))
-//     path.add(new THREE.LineCurve3(p4, p1))
-
-//     const extrudeSettings = {
-//         steps: 4 * 1,
-//         extrudePath: path
-//     }
-
-//     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
-//     const material = new THREE.MeshBasicMaterial({ color: '#1b99ff', wireframe: false })
-//     const mesh = new THREE.Mesh(geometry, material)
-//     const outline = getOutline(geometry);
-//     mesh.add(outline);
-
-//     return mesh
-// }
-
-
-
 const COLORS = {
     frame: {
         default: '#ffffff',
-        category: '#1b50ff',
-        segment: '#7797ff'
+        category: '#0004ff',
+        segment: '#0059ff'
     },
     bead: {
         default: '#ffffff',
-        category: '#1b50ff',
-        segment: '#7797ff'
+        category: '#0004ff',
+        segment: '#0059ff'
     }
 }
 
@@ -63,10 +25,10 @@ export function createWindow(width, height, frameW, frameH, frameW1, frameH1, be
 
     disposeWindow();
 
-    if(!dirLight){
-        dirLight = new THREE.DirectionalLight(0xffffff,1)
-        dirLight.position.set(100,100,100)
-        dirLight.lookAt(0,0,0);
+    if (!dirLight) {
+        dirLight = new THREE.DirectionalLight(0xffffff, 1)
+        dirLight.position.set(100, 100, 100)
+        dirLight.lookAt(0, 0, 0);
         scene.add(dirLight)
     }
 
@@ -84,14 +46,15 @@ export function createWindow(width, height, frameW, frameH, frameW1, frameH1, be
     if (beadW === 0) beadW = 2.0
     if (beadH === 0) beadH = frameH - frameH1;
 
-    const points = [
-        new Point(0, 0),
-        new Point(width, 0),
-        new Point(width, height),
-        new Point(0, height)
-    ]
+    const path = new PolygonPath()
 
-    const path = new PolygonPath(points)
+    path.moveTo(0, 0)
+    path.lineTo(width, 0)
+    //path.absarc(width, height/2, height/2, 3*Math.PI/2, Math.PI/2, false);
+    path.lineTo(width, height);
+    path.lineTo(0, height)
+    path.closePath()
+
     const segments = path.getSegments()
 
 
@@ -99,10 +62,11 @@ export function createWindow(width, height, frameW, frameH, frameW1, frameH1, be
     const bead = new Bead(beadW, beadH)
 
     const loader = new THREE.TextureLoader();
-    const woodTexture = loader.load("Images/Textures/Wood088/Wood088_1K-JPG_Color.jpg");
+    const woodTexture = loader.load("Images/Textures/Wood049/Wood049_1K-JPG_Color.jpg");
+    woodTexture.colorSpace = THREE.SRGBColorSpace;
     woodTexture.wrapS = THREE.RepeatWrapping;
     woodTexture.wrapT = THREE.RepeatWrapping;
-    woodTexture.repeat.set(0.1, 0.1);
+    woodTexture.repeat.set(1, 1);
 
     const woodMaterial = new THREE.MeshStandardMaterial({
         side: THREE.DoubleSide,
@@ -116,13 +80,14 @@ export function createWindow(width, height, frameW, frameH, frameW1, frameH1, be
     const glass = new Glass(width - 2 * frame.h1 - GVA, height - 2 * frame.h1 - GHA).getMesh()
     glass.position.set(width / 2, height / 2, -frame.width / 2);
 
-    const comp1 = framePolygon.create();
-    const comp2 = beadPolygon.create();
+    const frameMeshes = framePolygon.create()
+    const beadMeshes = beadPolygon.create()
 
     group = new THREE.Group()
-    group.add(comp1)
-    group.add(comp2)
     group.add(glass);
+
+    frameMeshes.forEach(mesh => group.add(mesh))
+    beadMeshes.forEach(mesh => group.add(mesh))
 
     new RaySystem(camera)
 
@@ -137,38 +102,249 @@ export function disposeWindow() {
 
 
 class Point {
+
     constructor(x, y, z = 0) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.x = x
+        this.y = y
+        this.z = z
     }
+
+    clone() {
+        return new Point(this.x, this.y, this.z)
+    }
+
+    add(p) {
+        return new Point(this.x + p.x, this.y + p.y, this.z + p.z)
+    }
+
+    subtract(p) {
+        return new Point(this.x - p.x, this.y - p.y, this.z - p.z)
+    }
+
+    distanceTo(p) {
+        const dx = this.x - p.x
+        const dy = this.y - p.y
+        const dz = this.z - p.z
+        return Math.sqrt(dx * dx + dy * dy + dz * dz)
+    }
+
 }
 
 class Line {
+
     constructor(p1, p2) {
-        this.p1 = p1;
-        this.p2 = p2;
+        this.p1 = p1
+        this.p2 = p2
     }
 
     length2() {
-        const dx = this.p2.x - this.p1.x;
-        const dy = this.p2.y - this.p1.y;
-        return Math.sqrt(dx * dx + dy * dy);
+        const dx = this.p2.x - this.p1.x
+        const dy = this.p2.y - this.p1.y
+        return Math.sqrt(dx * dx + dy * dy)
     }
 
-    length3() {
-        const dx = this.p2.x - this.p1.x;
-        const dy = this.p2.y - this.p1.y;
-        const dz = this.p2.z - this.p1.z;
-        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    length() {
+        const dx = this.p2.x - this.p1.x
+        const dy = this.p2.y - this.p1.y
+        const dz = this.p2.z - this.p1.z
+        return Math.sqrt(dx * dx + dy * dy + dz * dz)
+    }
+
+    dir() {
+        const dx = this.p2.x - this.p1.x
+        const dy = this.p2.y - this.p1.y
+        const len = Math.sqrt(dx * dx + dy * dy)
+
+        return new THREE.Vector2(dx / len, dy / len)
+    }
+
+    normal() {
+        const d = this.dir()
+        return new THREE.Vector2(-d.y, d.x)
     }
 
     angle() {
-        const dx = this.p2.x - this.p1.x;
-        const dy = this.p2.y - this.p1.y;
-        return Math.atan2(dy, dx);
+        const dx = this.p2.x - this.p1.x
+        const dy = this.p2.y - this.p1.y
+        return Math.atan2(dy, dx)
     }
+
+    mid() {
+        return new Point(
+            (this.p1.x + this.p2.x) / 2,
+            (this.p1.y + this.p2.y) / 2
+        )
+    }
+    path() {
+
+        return new THREE.LineCurve3(
+            new THREE.Vector3(this.p1.x, this.p1.y, this.p1.z),
+            new THREE.Vector3(this.p2.x, this.p2.y, this.p2.z)
+        )
+
+    }
+
+
 }
+
+class Arc {
+
+    constructor(center, radius, startAngle, endAngle, clockwise = false) {
+
+        this.center = center
+        this.radius = radius
+        this.startAngle = startAngle
+        this.endAngle = endAngle
+        this.clockwise = clockwise
+
+    }
+
+    startPoint() {
+        return new Point(
+            this.center.x + this.radius * Math.cos(this.startAngle),
+            this.center.y + this.radius * Math.sin(this.startAngle)
+        )
+    }
+
+    endPoint() {
+        return new Point(
+            this.center.x + this.radius * Math.cos(this.endAngle),
+            this.center.y + this.radius * Math.sin(this.endAngle)
+        )
+    }
+
+    length() {
+        return Math.abs(this.endAngle - this.startAngle) * this.radius
+    }
+
+    // angle of tangent at parameter t
+    angleAt(t) {
+        const a = this.startAngle + (this.endAngle - this.startAngle) * t
+        return a + (this.clockwise ? -Math.PI / 2 : Math.PI / 2)
+    }
+
+    // direction vector at tangent t
+    dirAt(t) {
+        const a = this.startAngle + (this.endAngle - this.startAngle) * t
+        const sign = this.clockwise ? -1 : 1
+        return new THREE.Vector2(
+            -Math.sin(a) * sign,
+            Math.cos(a) * sign
+        )
+
+    }
+
+    // normal vector pointing to center
+    normalAt(t) {
+        const a = this.startAngle + (this.endAngle - this.startAngle) * t
+        return new THREE.Vector2(
+            -Math.cos(a),
+            -Math.sin(a)
+        )
+
+    }
+
+    // tangent angle at start
+    angleStart() {
+        return this.angleAt(0)
+    }
+
+    // tangent angle at end
+    angleEnd() {
+        return this.angleAt(1)
+    }
+
+    getPoints(divisions = 20) {
+        const pts = []
+
+        for (let i = 0; i <= divisions; i++) {
+            const t = i / divisions
+            const a = this.startAngle + (this.endAngle - this.startAngle) * t
+            const x = this.center.x + this.radius * Math.cos(a)
+            const y = this.center.y + this.radius * Math.sin(a)
+            pts.push(new Point(x, y))
+        }
+        return pts
+    }
+
+    path() {
+        const pts = this.getPoints(30)
+        const vectors = pts.map(p =>
+            new THREE.Vector3(p.x, p.y, p.z)
+        )
+        return new THREE.CatmullRomCurve3(vectors)
+    }
+
+}
+
+class PolygonPath {
+
+    constructor() {
+        this.segments = []
+        this.currentPoint = null
+        this.startPoint = null
+    }
+
+    moveTo(x, y) {
+        const p = new Point(x, y)
+        this.currentPoint = p
+        this.startPoint = p
+
+    }
+
+    lineTo(x, y) {
+        const next = new Point(x, y)
+        const line = new Line(this.currentPoint, next)
+        this.segments.push(line)
+        this.currentPoint = next
+    }
+
+    absarc(cx, cy, r, start, end, cw = false) {
+        const arc = new Arc(
+            new Point(cx, cy),
+            r,
+            start,
+            end,
+            cw
+        )
+
+        this.segments.push(arc)
+        const x = cx + r * Math.cos(end)
+        const y = cy + r * Math.sin(end)
+        this.currentPoint = new Point(x, y)
+    }
+
+    closePath() {
+        if (this.currentPoint !== this.startPoint) {
+            this.segments.push(
+                new Line(this.currentPoint, this.startPoint)
+            )
+        }
+
+    }
+
+    getSegments() {
+        return this.segments
+    }
+
+    segmentCount() {
+        return this.segments.length
+    }
+
+    getSegment(i) {
+        return this.segments[i]
+    }
+
+    pathLength() {
+        let len = 0
+        this.segments.forEach(seg => {
+            len += seg.length()
+        })
+        return len
+    }
+
+}
+
 
 class Glass {
     constructor(width, height) {
@@ -177,9 +353,23 @@ class Glass {
     }
 
     getMesh() {
-        const geometry = new THREE.BoxGeometry(this.width, this.height, 1);
-        const material = new THREE.MeshPhysicalMaterial({ color: '#c4e5ff', transmission: 1, roughness: 0, metalness: 0, clearcoat: 1, emissive: 'black', specular: 'white' });
-        return new THREE.Mesh(geometry, material);
+        const geometry = new THREE.BoxGeometry(this.width, this.height, 0.05);
+        const texture = new THREE.TextureLoader().load("Images/sky1.jpg")
+        texture.mapping = THREE.EquirectangularReflectionMapping
+        
+        scene.environment = texture
+        const glassMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            metalness: 0.1,
+            roughness: 0.02,
+            reflectivity: 1,
+            transmission: 1,
+            thickness: 1.5,
+            ior: 1.5,
+            clearcoat: 1,
+            clearcoatRoughness: 0,
+        })
+        return new THREE.Mesh(geometry, glassMaterial);
     }
 }
 
@@ -233,26 +423,14 @@ class Bead {
 
 }
 
-class PolygonPath {
-    constructor(points) {
-        this.points = points
-    }
-    getSegments() {
-        const segments = []
-        for (let i = 0; i < this.points.length; i++) {
-            const p1 = this.points[i]
-            const p2 = this.points[(i + 1) % this.points.length]
-            segments.push(new Line(p1, p2));
-        }
-        return segments
-    }
-}
+
+
 
 class Polygon {
     constructor(profile, segments, offset, color, category, c1, c2, material) {
         this.material = material;
         this.profile = profile,
-        this.shape = profile.getShape();
+            this.shape = profile.getShape();
         this.segments = segments
         this.offset = offset
         this.color = color
@@ -262,56 +440,85 @@ class Polygon {
     }
 
     create() {
-        const group = new THREE.Group()
-        const profiles = [];
-        //building each profile segment based on line segments
+
+        const meshes = []
+        const count = this.segments.length;
+
         this.segments.forEach((segment, i) => {
 
-            let length = segment.length2() - this.offset * 2
-            //Normalizing
-            const dx = segment.p2.x - segment.p1.x
-            const dy = segment.p2.y - segment.p1.y
-            const len = Math.sqrt(dx * dx + dy * dy)
-            const dir = new THREE.Vector2(dx / len, dy / len)
+            const prev = this.segments[(i - 1 + count) % count]
+            const next = this.segments[(i + 1) % count]
 
-            //check for bead in horizontal direction
+            const dir = segment.dir()
+            const prevDir = prev.dir()
+            const nextDir = next.dir()
+
+            const dot1 = dir.x * prevDir.x + dir.y * prevDir.y
+            const dot2 = dir.x * nextDir.x + dir.y * nextDir.y
+
+            const angle1 = Math.acos(dot1)
+            const angle2 = Math.acos(dot2)
+
+            const a1 = (angle1 / 2) * 180/Math.PI;
+            const a2 = 180 - (angle2 / 2) * 180/Math.PI;
+
+            
+            const normal = segment.normal()
+            let length = segment.length() - this.offset * 2
+
             const horizontal = Math.abs(dir.x) > Math.abs(dir.y)
+
             if (this.category === "bead" && horizontal) {
-                length -= this.profile.height * 2
+                //length -= this.profile.height/2
             }
 
-            //extruding single profile segment
-            const mesh = Geometry.extrude(this.shape, length, this.color, this.c1, this.c2, this.material)
+            const mesh = Geometry.extrude(
+                this.shape,
+                length,
+                this.color,
+                // this.c1,
+                // this.c2,
+                a1, a2,
+                this.material
+            )
 
             mesh.position.set(segment.p1.x, segment.p1.y, segment.p1.z)
 
+
             if (this.category === "bead" && horizontal) {
-                mesh.position.x += dir.x * this.profile.height
-                mesh.position.y += dir.y * this.profile.height
+                // mesh.position.x += dir.x * this.profile.height/2
+                // mesh.position.y += dir.y * this.profile.height/2
             }
 
-            const normal = new THREE.Vector2(-dir.y, dir.x)
 
             mesh.position.x += dir.x * this.offset
             mesh.position.y += dir.y * this.offset
 
+
             mesh.position.x += normal.x * this.offset
             mesh.position.y += normal.y * this.offset
 
+
             mesh.rotation.z = segment.angle()
+
 
             mesh.metaData = {
                 category: this.category,
                 segmentIndex: i
             }
 
+
             mesh.add(Geometry.outline(mesh.geometry))
+
+
             selectableMeshes.push(mesh)
 
-            group.add(mesh)
+
+            meshes.push(mesh)
+
         })
 
-        return group
+        return meshes
     }
 }
 
@@ -328,9 +535,10 @@ class Geometry {
         })
 
         Geometry.miterCut(geometry, length, c1, c2)
-        
-        const Material = new THREE.MeshBasicMaterial({ color })
-        return new THREE.Mesh(geometry, Material);
+
+        //const Material = new THREE.MeshBasicMaterial({ color })
+        const mat = material.clone();
+        return new THREE.Mesh(geometry, mat);
     }
 
     static miterCut(geometry, length, a1, a2) {
@@ -369,7 +577,6 @@ class RaySystem {
 
         this.raycaster.setFromCamera(this.mouse, this.camera)
 
-        // recursive true ensures raycast checks children (like outline)
         const hit = this.raycaster.intersectObjects(selectableMeshes, true)
 
         if (!hit.length) {
@@ -387,39 +594,49 @@ class RaySystem {
 
     }
     highlightSelection(mesh) {
-        const category = mesh.metaData.category
-        selectableMeshes.forEach(obj => {
-            const objCategory = obj.metaData.category
-            obj.material.color.set(COLORS[objCategory].default)
-            // obj.material.map = null;
-            // obj.material.needsUpdate = true;
 
-        })
         selectableMeshes.forEach(obj => {
 
-            if (obj.metaData.category === category) {
-                obj.material.color.set(COLORS[category].category)
-                // obj.material.map = null;
-                // obj.material.needsUpdate = true;
+            if (obj.material.emissive) {
+
+                obj.material.emissive.set('black')
+                obj.material.emissiveIntensity = 0
+
             }
 
         })
 
-        mesh.material.color.set(COLORS[category].segment)
+        selectableMeshes.forEach(obj => {
+
+            if (obj.metaData.category === mesh.metaData.category) {
+
+                obj.material.emissive.set(COLORS[mesh.metaData.category].category)
+                obj.material.emissiveIntensity = 100
+
+            }
+
+        })
+
+        mesh.material.emissive.set(COLORS[mesh.metaData.category].segment)
+        mesh.material.emissiveIntensity = 100
     }
 
     resetColors() {
+
         selectableMeshes.forEach(obj => {
-            const category = obj.metaData.category
-            obj.material.color.set(COLORS[category].default)
-            //obj.material.map = woodMaterial;
+
+            if (obj.material.emissive) {
+
+                obj.material.emissive.set('black')
+                obj.material.emissiveIntensity = 0
+
+            }
 
         })
 
     }
 
 }
-
 
 
 //FRONTEND
