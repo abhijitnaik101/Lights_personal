@@ -10,6 +10,7 @@ import './Project-2/Extruded1';
 import './Project-2/Extruded2';
 import './Project-2/ExtrudedController';
 import './Project-3/CuttingController';
+import './Project-4/Project4Controller'
 import './ProjectController';
 
 scene.add(ambientLight);
