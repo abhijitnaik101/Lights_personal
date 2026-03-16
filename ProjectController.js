@@ -13,6 +13,7 @@ const info = document.getElementById("info");
 const project1Container = document.getElementById("Project-1-Container");
 const project2Container = document.getElementById("Project-2-Container");
 const project3Container = document.getElementById("Project-3-Container");
+const project4Container = document.getElementById("Project-4-Container");
 const dashboard = document.getElementById("dashboard");
 
 tutorial.hidden = true;

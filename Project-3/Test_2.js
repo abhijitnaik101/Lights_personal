@@ -62,11 +62,11 @@ export function createWindow(width, height, frameW, frameH, frameW1, frameH1, be
     const bead = new Bead(beadW, beadH)
 
     const loader = new THREE.TextureLoader();
-    const woodTexture = loader.load("Images/Textures/Wood049/Wood049_1K-JPG_Color.jpg");
+    const woodTexture = loader.load("Images/grid.jpg");
     woodTexture.colorSpace = THREE.SRGBColorSpace;
     woodTexture.wrapS = THREE.RepeatWrapping;
     woodTexture.wrapT = THREE.RepeatWrapping;
-    woodTexture.repeat.set(1, 1);
+    woodTexture.repeat.set(5, 1);
 
     const woodMaterial = new THREE.MeshStandardMaterial({
         side: THREE.DoubleSide,
@@ -93,6 +93,13 @@ export function createWindow(width, height, frameW, frameH, frameW1, frameH1, be
 
     group.position.set(-width / 2, -height / 2);
     scene.add(group);
+}
+
+function setHandle(segments, position, orientation){
+    segments.forEach((segment) => {
+        if(segment.dir().x === 0 && segment.dir().y === 1){
+        }
+    })
 }
 
 export function disposeWindow() {
