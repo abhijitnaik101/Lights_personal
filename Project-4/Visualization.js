@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { camera } from '../Core/Camera';
 import { scene } from '../Core/Scene';
+import { createHandle, getCAD } from './Hardware.js';
+import { disposeHandle } from './Hardware.js';
 
 const COLORS = {
     frame: {
@@ -18,7 +20,8 @@ const COLORS = {
 const selectableMeshes = []
 let group = null;
 let dirLight = null;
-
+let globalSegments = null;
+let globalFrame = null;
 
 
 export function createWindow(width, height, frameW, frameH, frameW1, frameH1, beadW, beadH) {
@@ -48,25 +51,24 @@ export function createWindow(width, height, frameW, frameH, frameW1, frameH1, be
 
     const path = new PolygonPath()
 
-    path.moveTo(0, 0)
-    path.lineTo(width, 0)
-    //path.absarc(width, height/2, height/2, 3*Math.PI/2, Math.PI/2, false);
+    path.moveTo(0, 0);
+    path.lineTo(width, 0);
     path.lineTo(width, height);
-    path.lineTo(0, height)
-    path.closePath()
+    path.lineTo(0, height);
+    path.closePath();
 
     const segments = path.getSegments()
 
 
     const frame = new Frame(frameW, frameH, frameW1, frameH1);
-    const bead = new Bead(beadW, beadH)
+    const bead = new Bead(beadW, beadH);
 
     const loader = new THREE.TextureLoader();
-    const woodTexture = loader.load("Images/grid.jpg");
+    const woodTexture = loader.load("Images/Textures/Wood049/Wood049_1K-JPG_Color.jpg");
     woodTexture.colorSpace = THREE.SRGBColorSpace;
     woodTexture.wrapS = THREE.RepeatWrapping;
     woodTexture.wrapT = THREE.RepeatWrapping;
-    woodTexture.repeat.set(5, 1);
+    woodTexture.repeat.set(1, 1);
 
     const woodMaterial = new THREE.MeshStandardMaterial({
         side: THREE.DoubleSide,
@@ -78,7 +80,7 @@ export function createWindow(width, height, frameW, frameH, frameW1, frameH1, be
 
     const GVA = 0.1, GHA = 0.1;
     const glass = new Glass(width - 2 * frame.h1 - GVA, height - 2 * frame.h1 - GHA).getMesh()
-    glass.position.set(width / 2, height / 2, -frame.width / 2);
+    glass.position.set(width / 2, height / 2, -frame.w1 / 2);
 
     const frameMeshes = framePolygon.create()
     const beadMeshes = beadPolygon.create()
@@ -91,16 +93,75 @@ export function createWindow(width, height, frameW, frameH, frameW1, frameH1, be
 
     new RaySystem(camera)
 
-    group.position.set(-width / 2, -height / 2);
+    group.position.set(-width / 2, -height / 2, 0);
+
+    globalSegments = segments;
+    globalFrame = frame;
+
+
+    disposeHandle();
+    setHandle(globalSegments, globalFrame, 300, 40, 150, 5, 0.2, 'right', 'inside', 'normal');
+
     scene.add(group);
 }
+
+
+
 
 export function disposeWindow() {
     if (scene.children.includes(group)) scene.remove(group);
     selectableMeshes.length = 0;
 }
 
+function setHandle(segments, frame, ghh = 300, width = 40, height = 150, depth = 5, scale = 0.2, position = 'right', orientation = 'inside', view = 'real') {
+    
+    ghh = ghh/10;
+    const bottomSegment = segments[0];
+    const rightSegment = segments[1];
+    const topSegment = segments[2];
+    const leftSegment = segments[3];
 
+    const horizontal = bottomSegment.length()
+    const vertical = rightSegment.length()
+
+    let handlePos;
+
+    let zPos = 0;
+    switch(orientation){
+        case 'inside' : zPos = 1.2; break;
+        case 'outside' : zPos = -frame.width - 1.2; break;
+    }
+
+    switch(position){
+        case 'bottom': 
+            let midB = bottomSegment.mid();
+            let lenB = bottomSegment.length();
+            handlePos = new THREE.Vector3(midB.x - horizontal/2, midB.y - vertical/2 + frame.h1/2, zPos);
+            createHandle(ghh, width, height, depth, position, orientation, view, scale, handlePos);
+            break;
+        case 'right': 
+            let midR = rightSegment.mid();
+            let lenR = rightSegment.length();
+            handlePos = new THREE.Vector3(midR.x - horizontal/2 - frame.h1/2, ghh - lenR/2, zPos);
+            createHandle(ghh, width, height, depth, position, orientation, view, scale, handlePos);
+            break;
+        case 'top': 
+            let midT = topSegment.mid();
+            let lenT = topSegment.length();
+            handlePos = new THREE.Vector3(midT.x - horizontal/2, midT.y - vertical/2 - frame.h1/2, zPos)
+            createHandle(ghh, width, height, depth, position, orientation, view, scale, handlePos);
+            break;
+        case 'left': 
+            let midL = leftSegment.mid();
+            let lenL = leftSegment.length();
+            handlePos = new THREE.Vector3(midL.x - horizontal/2 + frame.h1/2, ghh - lenL/2, zPos)
+            createHandle(ghh, width, height, depth, position, orientation, view, scale, handlePos);
+            break;
+    }
+}
+
+//#region custom classes
+//CUSTOM CLASSES 
 class Point {
 
     constructor(x, y, z = 0) {
@@ -344,8 +405,10 @@ class PolygonPath {
     }
 
 }
+//#endregion
 
-
+//#region profile
+//PROFILES
 class Glass {
     constructor(width, height) {
         this.width = width;
@@ -356,7 +419,6 @@ class Glass {
         const geometry = new THREE.BoxGeometry(this.width, this.height, 0.05);
         const texture = new THREE.TextureLoader().load("Images/sky1.jpg")
         texture.mapping = THREE.EquirectangularReflectionMapping
-        
         scene.environment = texture
         const glassMaterial = new THREE.MeshPhysicalMaterial({
             color: 0xffffff,
@@ -366,8 +428,7 @@ class Glass {
             transmission: 1,
             thickness: 1.5,
             ior: 1.5,
-            clearcoat: 1,
-            clearcoatRoughness: 0,
+            clearcoat: 1
         })
         return new THREE.Mesh(geometry, glassMaterial);
     }
@@ -422,10 +483,9 @@ class Bead {
     }
 
 }
+//#endregion
 
-
-
-
+//#region Helper Classes
 class Polygon {
     constructor(profile, segments, offset, color, category, c1, c2, material) {
         this.material = material;
@@ -459,10 +519,10 @@ class Polygon {
             const angle1 = Math.acos(dot1)
             const angle2 = Math.acos(dot2)
 
-            const a1 = (angle1 / 2) * 180/Math.PI;
-            const a2 = 180 - (angle2 / 2) * 180/Math.PI;
+            const a1 = (angle1 / 2) * 180 / Math.PI;
+            const a2 = 180 - (angle2 / 2) * 180 / Math.PI;
 
-            
+
             const normal = segment.normal()
             let length = segment.length() - this.offset * 2
 
@@ -637,8 +697,9 @@ class RaySystem {
     }
 
 }
+//#endregion
 
-
+//#region visual
 //FRONTEND
 const T2WindowW = document.getElementById('T2WindowW');
 const T2WindowH = document.getElementById('T2WindowH');
@@ -678,14 +739,46 @@ updateBtnT2.addEventListener('click', () => {
         return;
     }
 
-    // if(windowW === 0) windowW = 50;
-    // if(windowH === 0) windowW = 50;
-    // if(frameW === 0) frameW = 6.0;
-    // if(frameH === 0) frameH = 6.0;
-    // if(frameW1 === 0) frameW1 = 5.0;
-    // if(frameH1 === 0) frameH1 = frameH - 3.0
-    // if(beadW === 0) beadW = 2.0
-    // if(beadH === 0) beadH = 3.0
-
     createWindow(windowW, windowH, frameW, frameH, frameW1, frameH1, beadW, beadH);
 });
+
+//#endregion
+
+
+//#region hardware
+// TEST3 FRONTEND
+const ghhInput = document.getElementById("ghh");
+const T3Width = document.getElementById("T3Width");
+const T3Height = document.getElementById("T3Height");
+
+const positionSelect = document.getElementById("T3Position");
+const orientationSelect = document.getElementById("T3Orientation");
+const viewSelect = document.getElementById('T3View');
+
+const updateBtnT3 = document.getElementById("updateBtnT3");
+
+updateBtnT3.addEventListener("click", () => {
+    const scaleDiv = 10;
+    const ghh = Number(ghhInput.value);
+    const width = Number(T3Width.value);
+    const height = Number(T3Height.value);
+
+    const position = positionSelect.value;
+    const orientation = orientationSelect.value;
+    const view = viewSelect.value;
+
+    if (
+        ghh === 0 &&
+        width === 0 &&
+        height === 0
+    ) {
+        alert("Please enter valid numbers!");
+        return;
+    }
+    let depth =5, scale = 0.2, pos = new THREE.Vector3(0,0,0);
+
+    if(!globalSegments || !globalFrame) return;
+    setHandle(globalSegments, globalFrame, ghh, width, height, depth, scale, position, orientation, view);
+    
+});
+//#endregion

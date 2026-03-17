@@ -6,6 +6,8 @@ import { createRoom } from "./Project-1/Ground";
 import { createAxesHelper } from "./Project-2/Extruded1";
 import { createC1Extrude } from "./Project-3/Cutting1";
 import { createC2Extrude } from "./Project-3/Cutting2";
+import { createWindow } from "./Project-4/Visualization";
+
 
 const tutorial = document.getElementById("tutorial");
 const info = document.getElementById("info");
@@ -30,6 +32,7 @@ function showProject(project) {
     project1Container.hidden = project !== 1;
     project2Container.hidden = project !== 2;
     project3Container.hidden = project !== 3;
+    project4Container.hidden = project !== 4;
 
     resetScene();
 
@@ -56,6 +59,13 @@ function showProject(project) {
         info.hidden = true;
         createC2Extrude(2, 15, 30, 5, 1.5, 1, 1);
     }
+
+    if (project === 4){
+        //createAxesHelper();
+        tutorial.hidden = true;
+        info.hidden = true;
+        createWindow(60, 60, 0,0,0,0,0,0);
+    }
 }
 
 document.querySelectorAll(".project1").forEach(btn =>
@@ -68,4 +78,8 @@ document.querySelectorAll(".project2").forEach(btn =>
 
 document.querySelectorAll(".project3").forEach(btn =>
     btn.addEventListener("click", () => showProject(3))
+);
+
+document.querySelectorAll(".project4").forEach(btn =>
+    btn.addEventListener("click", () => showProject(4))
 );

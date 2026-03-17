@@ -1,29 +1,44 @@
-import { createAxesHelper, removeAxesHelper } from "../Project-2/Extruded1";
-import { createC1Extrude, deleteC1Shape } from "./Cutting1";
-import { createC2Extrude, deleteC2Shape } from "./Cutting2";
-import { createWindow, disposeWindow } from "./Test_2";
+import { createHandle, disposeHandle } from "./Hardware.js";
+import { createLine, disposeLine } from "./Section.js";
+import { createWindow, disposeWindow } from "./Visualization";
+import * as THREE from 'three';
 
-const visualization = document.getElementById('Test2')
+const sectioning = document.getElementById('Test1');
+const visualization = document.getElementById('Test2');
+const hardware =  document.getElementById('Test3');
+
 
 const panels = {
+    sectioning,
     visualization,
+    hardware,
 }
 
-function hideAllPanels() {
+export function hideAllPanels() {
     Object.values(panels).forEach(panel => panel.hidden = true);
 }
 
-function resetScene() {
-    removeAxesHelper();
+export function resetScene() {
     disposeWindow();
+    disposeHandle();
+    disposeLine();
 }
 
-const actions = {
+export const actions = {
+
+    T1 : () => {
+        panels.sectioning.hidden = false;
+        //createWindow(60, 60, 0,0,0,0,0,0);
+        createLine();
+    }, 
     T2 : () => {
         panels.visualization.hidden = false;
+        panels.hardware.hidden = false;
         createWindow(60, 60, 0,0,0,0,0,0);
-
-        
+    },
+    T3 : () => {
+        panels.hardware.hidden = false;
+        createHandle(0, 30, 150, 10, 'left', 'inside', 'normal', 1, new THREE.Vector3(0,0,0));
     }
 };
 
